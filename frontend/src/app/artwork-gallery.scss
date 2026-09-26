@@ -1,0 +1,19 @@
+.gallery-rating {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 0 0 12px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.gallery-rating mat-icon {
+  width: 16px;
+  height: 16px;
+  color: #b5741a;
+  font-size: 16px;
+}
+
+.gallery-rating strong {
+  color: var(--ink);
+}

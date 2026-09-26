@@ -1,0 +1,58 @@
+<section class="upload-section" aria-labelledby="upload-title">
+  <div class="upload-heading">
+    <p class="eyebrow">Artwork management</p>
+    @if (editing()) {
+      <h1 id="upload-title">Update a<br>work<span>.</span></h1>
+      <p>Revise the details or replace the image.</p>
+    } @else {
+      <h1 id="upload-title">Add a new<br>work<span>.</span></h1>
+      <p>Share the piece, set your price, and let collectors find it.</p>
+    }
+    <a mat-stroked-button routerLink="/artworks/manage">Back to management</a>
+  </div>
+  @if (loadingArtwork()) {
+    <div class="loading-state" role="status"><mat-spinner diameter="36"></mat-spinner><span>Loading artwork</span></div>
+  } @else {
+    <form class="upload-form" [formGroup]="uploadForm" (ngSubmit)="submitUpload()">
+      <div class="form-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Artwork title</mat-label>
+          <input matInput formControlName="title" maxlength="120" required>
+          @if (uploadForm.controls.title.hasError('required') && uploadForm.controls.title.touched) { <mat-error>Enter a title.</mat-error> }
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Price (₹)</mat-label>
+          <input matInput type="number" min="0.01" step="0.01" formControlName="price" required>
+          @if (uploadForm.controls.price.hasError('min') && uploadForm.controls.price.touched) { <mat-error>Price must be greater than zero.</mat-error> }
+        </mat-form-field>
+      </div>
+      <div class="form-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Discount (%)</mat-label>
+          <input matInput type="number" min="0" max="100" step="1" formControlName="discount_percent">
+          <mat-hint>Enter 0 for no discount</mat-hint>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Description</mat-label>
+          <textarea matInput rows="1" maxlength="1000" formControlName="description"></textarea>
+        </mat-form-field>
+      </div>
+      <div class="upload-actions">
+        <input #fileInput class="visually-hidden" type="file" accept="image/jpeg,image/png,image/webp" (change)="onFileSelected($event)">
+        <button mat-stroked-button type="button" class="file-button" (click)="fileInput.click()">
+          <mat-icon>add_photo_alternate</mat-icon>{{ selectedFile()?.name || (editing() ? 'Replace image' : 'Choose an image') }}
+        </button>
+        <span class="file-hint">JPG, PNG or WebP · up to 10 MB@if (editing()) { · optional }</span>
+        <button mat-flat-button type="submit" class="submit-button" [disabled]="uploading() || uploadForm.invalid || (!editing() && !selectedFile())">
+          @if (uploading()) { <mat-spinner diameter="18"></mat-spinner> } @else if (editing()) { Save changes } @else { Add artwork }
+          <mat-icon iconPositionEnd>arrow_forward</mat-icon>
+        </button>
+      </div>
+      @if (imagePreview()) {
+        <div class="image-preview"><img [src]="imagePreview()" alt="Selected artwork preview"><span>New image preview</span></div>
+      } @else if (currentImageUrl()) {
+        <div class="image-preview"><img [src]="currentImageUrl()" alt="Current artwork"><span>Current image</span></div>
+      }
+    </form>
+    }
+</section>

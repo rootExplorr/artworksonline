@@ -1,0 +1,74 @@
+<section class="intro" aria-labelledby="page-title">
+  <div class="intro-copy">
+    <p class="eyebrow"><span></span> Independent art, collected here</p>
+    <h1 id="page-title">Find a piece<br>that feels <em>like you.</em></h1>
+    <p class="intro-description">Original work from artists worth knowing. Explore the collection and find a piece to call your own.</p>
+    <a mat-flat-button class="browse-button" href="#gallery">Browse the collection <mat-icon>arrow_downward</mat-icon></a>
+  </div>
+  <div class="intro-art" aria-label="Abstract artwork in coral, yellow, and blue">
+    <div class="art-sun"></div>
+    <div class="art-shape art-shape-one"></div>
+    <div class="art-shape art-shape-two"></div>
+    <div class="art-caption"><span>STUDIO NOTE 01</span><span>ART, MADE PERSONAL</span></div>
+  </div>
+  <div class="intro-index"><span>01</span><span> / </span><span>THE COLLECTION</span></div>
+</section>
+
+<section class="gallery-section" id="gallery" aria-labelledby="gallery-title">
+  <div class="section-heading">
+    <div>
+      <p class="eyebrow">The collection</p>
+      <h2 id="gallery-title">Works with a point of view<span>.</span></h2>
+    </div>
+    <mat-form-field appearance="outline" class="sort-control">
+      <mat-label>Sort by price</mat-label>
+      <mat-select [value]="sortOrder()" (selectionChange)="loadArtworks($event.value)">
+        <mat-option value="price_asc">Price: low to high</mat-option>
+        <mat-option value="price_desc">Price: high to low</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-state" role="status"><mat-spinner diameter="36"></mat-spinner><span>Gathering the collection</span></div>
+  } @else if (artworks().length) {
+    <div class="artwork-grid">
+      @for (artwork of artworks(); track artwork.id) {
+        <a class="artwork-card" [routerLink]="['/artworks', artwork.id]" [attr.aria-label]="'View ' + artwork.title">
+          <div class="artwork-image-wrap">
+            <img class="artwork-image" [src]="imageSource(artwork.image_url)" [alt]="artwork.title" loading="lazy">
+            @if (artwork.discount_percent > 0) {
+              <span class="discount-tag">{{ artwork.discount_percent }}% off</span>
+            }
+          </div>
+          <mat-card-content>
+            <div class="artwork-meta"><h3>{{ artwork.title }}</h3><span class="artwork-number">NO. {{ artwork.id.toString().padStart(3, '0') }}</span></div>
+            @if (artwork.description) { <p class="artwork-description">{{ artwork.description }}</p> }
+            <div class="gallery-rating" [attr.aria-label]="artwork.review_count + ' reviews, average rating ' + artwork.average_rating">
+              @if (artwork.review_count > 0) {
+                <mat-icon aria-hidden="true">star</mat-icon>
+                <strong>{{ artwork.average_rating | number:'1.1-1' }}</strong>
+                <span>{{ artwork.review_count }} {{ artwork.review_count === 1 ? 'review' : 'reviews' }}</span>
+              } @else {
+                <mat-icon aria-hidden="true">star_outline</mat-icon>
+                <span>No reviews</span>
+              }
+            </div>
+            <div class="price-line">
+              @if (artwork.discount_percent > 0) {
+                <span class="old-price">{{ artwork.price | currency:'INR':'symbol':'1.0-2' }}</span>
+              }
+              <span class="current-price">{{ artwork.final_price | currency:'INR':'symbol':'1.0-2' }}</span>
+            </div>
+          </mat-card-content>
+        </a>
+      }
+    </div>
+  } @else {
+    <div class="empty-state">
+      <mat-icon>image</mat-icon>
+      <h3>The gallery is waiting for its first piece.</h3>
+      <p>Be the first to share an artwork.</p>
+    </div>
+  }
+</section>

@@ -1,0 +1,27 @@
+<header class="topbar">
+  <a class="brand" routerLink="/artworks" aria-label="ArtOnline home">
+    <span class="brand-mark"><mat-icon>palette</mat-icon></span>
+    <span>art<span class="brand-light">online</span></span>
+  </a>
+  <nav aria-label="Main navigation">
+    <a routerLink="/artworks" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Explore</a>
+    @if (auth.authenticated()) {
+      <a routerLink="/artworks/manage" routerLinkActive="active">Manage art</a>
+    }
+  </nav>
+  @if (auth.authenticated()) {
+    <button mat-button class="topbar-cta" type="button" (click)="signOut()">Sign out <mat-icon>logout</mat-icon></button>
+  } @else {
+    <a class="topbar-cta" routerLink="/login">Admin login <mat-icon>arrow_outward</mat-icon></a>
+  }
+</header>
+
+<main id="top">
+  <router-outlet></router-outlet>
+</main>
+
+<footer class="footer">
+  <a class="brand" routerLink="/artworks">art<span class="brand-light">online</span></a>
+  <span>Art belongs everywhere.</span>
+  <a routerLink="/artworks">Explore the collection</a>
+</footer>

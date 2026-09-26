@@ -1,0 +1,103 @@
+<section class="artwork-detail-section" aria-label="Artwork details and reviews">
+  <a class="detail-back-link" routerLink="/artworks"><mat-icon>arrow_back</mat-icon> Back to collection</a>
+
+  @if (loading()) {
+    <div class="loading-state" role="status"><mat-spinner diameter="36"></mat-spinner><span>Loading artwork</span></div>
+  } @else if (artwork(); as item) {
+    <article class="artwork-detail">
+      <div class="detail-image-wrap">
+        <img class="detail-image" [src]="imageSource(item.image_url)" [alt]="item.title">
+        @if (item.discount_percent > 0) {
+          <span class="discount-tag">{{ item.discount_percent }}% off</span>
+        }
+      </div>
+      <div class="detail-copy">
+        <p class="eyebrow">Artwork no. {{ item.id.toString().padStart(3, '0') }}</p>
+        <h1 id="detail-title">{{ item.title }}</h1>
+        <div class="rating-overview" aria-label="Artwork rating summary">
+          <span class="rating-stars" aria-hidden="true">
+            @for (star of starValues; track star) {
+              <mat-icon>{{ item.average_rating >= star ? 'star' : 'star_outline' }}</mat-icon>
+            }
+          </span>
+          <strong>{{ item.average_rating | number:'1.1-1' }}</strong>
+          <span>{{ item.review_count }} {{ item.review_count === 1 ? 'review' : 'reviews' }}</span>
+        </div>
+        @if (item.description) {
+          <p class="detail-description">{{ item.description }}</p>
+        }
+        <div class="detail-price-line">
+          @if (item.discount_percent > 0) {
+            <span class="old-price">{{ item.price | currency:'INR':'symbol':'1.0-2' }}</span>
+          }
+          <span class="current-price">{{ item.final_price | currency:'INR':'symbol':'1.0-2' }}</span>
+        </div>
+      </div>
+    </article>
+    <section class="reviews-section" aria-labelledby="reviews-title">
+      <div class="reviews-heading">
+        <div>
+          <p class="eyebrow">Collector notes</p>
+          <h2 id="reviews-title">Reviews <span>({{ item.review_count }})</span></h2>
+        </div>
+      </div>
+
+      <form class="review-form" [formGroup]="reviewForm" (ngSubmit)="submitReview()">
+        <h3>Leave a review</h3>
+        <div class="rating-input" role="radiogroup" aria-label="Your star rating">
+          @for (star of starValues; track star) {
+            <button type="button" role="radio" class="rating-star-button" [class.selected]="selectedRating() >= star" [attr.aria-checked]="selectedRating() === star" [attr.aria-label]="star + (star === 1 ? ' star' : ' stars')" (click)="selectedRating.set(star)">
+              <mat-icon>{{ selectedRating() >= star ? 'star' : 'star_outline' }}</mat-icon>
+            </button>
+          }
+          @if (selectedRating() === 0) { <span class="rating-prompt">Choose a rating</span> }
+        </div>
+        <mat-form-field appearance="outline" class="review-name-field">
+          <mat-label>Your name (optional)</mat-label>
+          <input matInput formControlName="reviewer_name" maxlength="80">
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="review-comment-field">
+          <mat-label>Your review</mat-label>
+          <textarea matInput formControlName="comment" rows="3" maxlength="2000" required></textarea>
+          @if (reviewForm.controls.comment.hasError('required') && reviewForm.controls.comment.touched) {
+            <mat-error>Write a few words about this artwork.</mat-error>
+          }
+        </mat-form-field>
+        <button mat-flat-button class="submit-button review-submit" type="submit" [disabled]="submittingReview() || reviewsLoading() || reviewForm.invalid || selectedRating() === 0">
+          @if (submittingReview()) { <mat-spinner diameter="18"></mat-spinner> } @else { Submit review }
+          <mat-icon iconPositionEnd>arrow_forward</mat-icon>
+        </button>
+      </form>
+
+      @if (reviewsLoading()) {
+        <div class="loading-state review-loading" role="status"><mat-spinner diameter="28"></mat-spinner><span>Loading reviews</span></div>
+      } @else if (reviews().length) {
+        <div class="review-list">
+          @for (review of reviews(); track review.id) {
+            <article class="review-item">
+              <div class="review-item-heading">
+                <h3>{{ review.reviewer_name || 'Anonymous collector' }}</h3>
+                <time [attr.datetime]="review.created_at">{{ review.created_at | date:'mediumDate' }}</time>
+              </div>
+              <div class="review-stars" [attr.aria-label]="review.rating + ' out of 5 stars'">
+                @for (star of starValues; track star) {
+                  <mat-icon aria-hidden="true">{{ review.rating >= star ? 'star' : 'star_outline' }}</mat-icon>
+                }
+              </div>
+              <p>{{ review.comment }}</p>
+            </article>
+          }
+        </div>
+      } @else {
+        <p class="no-reviews">No reviews yet. Be the first to share your thoughts.</p>
+      }
+    </section>
+  } @else if (unavailable()) {
+    <div class="empty-state detail-error">
+      <mat-icon>image_not_supported</mat-icon>
+      <h2>Artwork unavailable</h2>
+      <p>This artwork could not be found.</p>
+      <a mat-stroked-button routerLink="/artworks">Return to the collection</a>
+    </div>
+  }
+</section>

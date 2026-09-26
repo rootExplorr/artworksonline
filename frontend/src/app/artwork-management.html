@@ -1,0 +1,52 @@
+<section class="management-section" aria-labelledby="management-title">
+  <div class="management-heading">
+    <div>
+      <p class="eyebrow">Collection tools</p>
+      <h1 id="management-title">Manage artworks<span>.</span></h1>
+      <p>Add new work or update the details in your collection.</p>
+    </div>
+    <a mat-flat-button class="submit-button" routerLink="/artworks/manage/new">
+      <mat-icon>add</mat-icon>Add artwork
+    </a>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-state" role="status"><mat-spinner diameter="36"></mat-spinner><span>Loading artworks</span></div>
+  } @else if (artworks().length) {
+    <div class="management-list">
+      @for (artwork of artworks(); track artwork.id) {
+        <article class="management-item">
+          <img class="management-image" [src]="imageSource(artwork.image_url)" [alt]="artwork.title" loading="lazy">
+          <div class="management-details">
+            <div class="artwork-meta">
+              <h2>{{ artwork.title }}</h2>
+              <span class="artwork-number">NO. {{ artwork.id.toString().padStart(3, '0') }}</span>
+            </div>
+            @if (artwork.description) { <p>{{ artwork.description }}</p> }
+            <div class="price-line">
+              @if (artwork.discount_percent > 0) {
+                <span class="old-price">{{ artwork.price | currency:'INR':'symbol':'1.0-2' }}</span>
+              }
+              <span class="current-price">{{ artwork.final_price | currency:'INR':'symbol':'1.0-2' }}</span>
+            </div>
+          </div>
+          <div class="management-actions">
+            <a mat-stroked-button [routerLink]="['/artworks/manage', artwork.id, 'edit']" [attr.aria-label]="'Edit ' + artwork.title">
+              <mat-icon>edit</mat-icon>Edit
+            </a>
+            <button mat-icon-button type="button" class="delete-button" [disabled]="deletingId() !== null" (click)="removeArtwork(artwork)" [attr.aria-label]="'Remove ' + artwork.title" title="Remove artwork">
+              @if (deletingId() === artwork.id) { <mat-spinner diameter="20"></mat-spinner> } @else { <mat-icon>delete</mat-icon> }
+            </button>
+          </div>
+        </article>
+      }
+    </div>
+  } @else {
+    <div class="empty-state">
+      <mat-icon>image</mat-icon>
+      <h2>No artworks yet.</h2>
+      <p>Add the first piece to your collection.</p>
+      <a mat-stroked-button routerLink="/artworks/manage/new">Add artwork</a>
+    </div>
+  }
+</section>

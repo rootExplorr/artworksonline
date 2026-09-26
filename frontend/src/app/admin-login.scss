@@ -1,0 +1,89 @@
+.login-section {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 0.75fr);
+  align-items: center;
+  gap: clamp(32px, 8vw, 110px);
+  min-height: 68vh;
+  padding: 72px clamp(22px, 9vw, 138px) 88px;
+  background: #e9ede5;
+}
+
+.login-intro .eyebrow {
+  margin-bottom: 16px;
+  color: var(--accent);
+}
+
+.login-intro h1 {
+  margin-bottom: 18px;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 52px;
+  font-weight: 500;
+  line-height: 1.05;
+}
+
+.login-intro h1 span {
+  color: var(--accent);
+}
+
+.login-intro > p:last-child {
+  max-width: 360px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 26px;
+  border: 1px solid #d0d8cf;
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.login-form mat-form-field {
+  width: 100%;
+}
+
+.login-error {
+  margin: 0 0 8px;
+  color: #a53224;
+  font-size: 13px;
+}
+
+.login-submit {
+  width: 100%;
+}
+
+.login-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 12px;
+  text-decoration: none;
+}
+
+.login-back mat-icon {
+  width: 17px;
+  height: 17px;
+  font-size: 17px;
+}
+
+@media (max-width: 700px) {
+  .login-section {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    padding: 56px 18px 64px;
+  }
+
+  .login-intro h1 {
+    font-size: 40px;
+  }
+
+  .login-form {
+    padding: 20px 16px;
+  }
+}

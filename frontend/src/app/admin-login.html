@@ -1,0 +1,31 @@
+<section class="login-section" aria-labelledby="login-title">
+  <div class="login-intro">
+    <p class="eyebrow">ArtOnline · Administrator</p>
+    <h1 id="login-title">Collection<br>management<span>.</span></h1>
+    <p>Sign in to manage the artwork collection.</p>
+  </div>
+  <form class="login-form" [formGroup]="loginForm" (ngSubmit)="submitLogin()">
+    <mat-form-field appearance="outline">
+      <mat-label>Username</mat-label>
+      <input matInput formControlName="username" autocomplete="username" required>
+      @if (loginForm.controls.username.hasError('required') && loginForm.controls.username.touched) {
+        <mat-error>Enter your username.</mat-error>
+      }
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Password</mat-label>
+      <input matInput type="password" formControlName="password" autocomplete="current-password" required>
+      @if (loginForm.controls.password.hasError('required') && loginForm.controls.password.touched) {
+        <mat-error>Enter your password.</mat-error>
+      }
+    </mat-form-field>
+    @if (errorMessage()) {
+      <p class="login-error" role="alert">{{ errorMessage() }}</p>
+    }
+    <button mat-flat-button class="submit-button login-submit" type="submit" [disabled]="submitting() || loginForm.invalid">
+      @if (submitting()) { <mat-spinner diameter="18"></mat-spinner> } @else { Sign in }
+      <mat-icon iconPositionEnd>arrow_forward</mat-icon>
+    </button>
+    <a class="login-back" routerLink="/artworks"><mat-icon>arrow_back</mat-icon> Return to the collection</a>
+  </form>
+</section>
