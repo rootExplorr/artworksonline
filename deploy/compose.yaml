@@ -24,11 +24,11 @@ services:
     restart: unless-stopped
     environment:
       DATABASE_URL: mysql+pymysql://${MYSQL_USER}:${MYSQL_PASSWORD}@db:3306/${MYSQL_DATABASE}
-      FRONTEND_ORIGIN: https://${DOMAIN:?Set DOMAIN in .env}
+      FRONTEND_ORIGIN: ${FRONTEND_ORIGIN:?Set FRONTEND_ORIGIN in .env}
       ADMIN_USERNAME: ${ADMIN_USERNAME:?Set ADMIN_USERNAME in .env}
       ADMIN_PASSWORD_HASH: ${ADMIN_PASSWORD_HASH:?Set ADMIN_PASSWORD_HASH in .env}
       AUTH_SECRET_KEY: ${AUTH_SECRET_KEY:?Set AUTH_SECRET_KEY in .env}
-      AUTH_COOKIE_SECURE: "true"
+      AUTH_COOKIE_SECURE: ${AUTH_COOKIE_SECURE:-true}
     volumes:
       - artwork_uploads:/app/uploads
     depends_on:
@@ -48,7 +48,7 @@ services:
     image: caddy:2-alpine
     restart: unless-stopped
     environment:
-      DOMAIN: ${DOMAIN:?Set DOMAIN in .env}
+      SITE_ADDRESS: ${SITE_ADDRESS:?Set SITE_ADDRESS in .env}
     ports:
       - "80:80"
       - "443:443"
