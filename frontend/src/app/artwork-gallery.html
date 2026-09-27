@@ -43,7 +43,6 @@
           </div>
           <mat-card-content>
             <div class="artwork-meta"><h3>{{ artwork.title }}</h3><span class="artwork-number">NO. {{ artwork.id.toString().padStart(3, '0') }}</span></div>
-            @if (artwork.description) { <p class="artwork-description">{{ artwork.description }}</p> }
             <div class="gallery-rating" [attr.aria-label]="artwork.review_count + ' reviews, average rating ' + artwork.average_rating">
               @if (artwork.review_count > 0) {
                 <mat-icon aria-hidden="true">star</mat-icon>
