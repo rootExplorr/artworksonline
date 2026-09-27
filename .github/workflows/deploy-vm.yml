@@ -62,7 +62,7 @@ jobs:
           printf '%s\n' "$VM_KNOWN_HOSTS" > ~/.ssh/known_hosts
           chmod 600 ~/.ssh/known_hosts
           ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes "$VM_USER@$VM_HOST" \
-            'cd /opt/artonline && git pull --ff-only && cd deploy && docker compose --env-file .env up -d --build'
+            'cd /opt/artworksonline && git pull --ff-only && cd deploy && docker compose --env-file .env up -d --build'
 
       - name: Check production health
         env:
