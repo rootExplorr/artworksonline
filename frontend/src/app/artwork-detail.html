@@ -5,10 +5,28 @@
     <div class="loading-state" role="status"><mat-spinner diameter="36"></mat-spinner><span>Loading artwork</span></div>
   } @else if (artwork(); as item) {
     <article class="artwork-detail">
-      <div class="detail-image-wrap">
-        <img class="detail-image" [src]="imageSource(item.image_url)" [alt]="item.title">
-        @if (item.discount_percent > 0) {
-          <span class="discount-tag">{{ item.discount_percent }}% off</span>
+      <div class="detail-gallery">
+        <div class="detail-image-wrap">
+          <img class="detail-image" [src]="imageSource(selectedImageUrl() || item.image_url)" [alt]="item.title">
+          @if (item.discount_percent > 0) {
+            <span class="discount-tag">{{ item.discount_percent }}% off</span>
+          }
+        </div>
+        @if (item.images.length > 1) {
+          <div class="detail-thumbnails" aria-label="More artwork images">
+            @for (image of item.images; track image.id; let index = $index) {
+              <button
+                type="button"
+                class="detail-thumbnail"
+                [class.selected]="selectedImageUrl() === image.image_url"
+                [attr.aria-label]="'Show image ' + (index + 1) + ' of ' + item.images.length"
+                [attr.aria-pressed]="selectedImageUrl() === image.image_url"
+                (click)="selectedImageUrl.set(image.image_url)"
+              >
+                <img [src]="imageSource(image.image_url)" [alt]="item.title + ' image ' + (index + 1)">
+              </button>
+            }
+          </div>
         }
       </div>
       <div class="detail-copy">

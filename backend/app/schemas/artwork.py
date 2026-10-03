@@ -14,9 +14,18 @@ class ArtworkResponse(BaseModel):
     discount_percent: Decimal
     final_price: Decimal
     image_url: str
+    images: list["ArtworkImageResponse"] = Field(default_factory=list)
     created_at: datetime
     review_count: int
     average_rating: float
+
+
+class ArtworkImageResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    image_url: str
+    position: int
 
 
 class ReviewCreate(BaseModel):

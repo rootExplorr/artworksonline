@@ -9,7 +9,7 @@ from fastapi.staticfiles import StaticFiles
 from app.api.routes.auth import router as auth_router
 from app.api.routes.artworks import router as artworks_router
 from app.auth import FRONTEND_ORIGINS
-from app.database import Base, engine
+from app.database import Base, SessionLocal, backfill_legacy_artwork_images, engine
 from app.models import Artwork
 
 UPLOAD_DIRECTORY = Path(__file__).resolve().parents[1] / "uploads"
@@ -19,6 +19,8 @@ UPLOAD_DIRECTORY.mkdir(parents=True, exist_ok=True)
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     Base.metadata.create_all(bind=engine)
+    with SessionLocal.begin() as database:
+        backfill_legacy_artwork_images(database)
     yield
 
 

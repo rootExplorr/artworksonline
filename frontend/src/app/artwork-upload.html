@@ -38,20 +38,51 @@
         </mat-form-field>
       </div>
       <div class="upload-actions">
-        <input #fileInput class="visually-hidden" type="file" accept="image/jpeg,image/png,image/webp" (change)="onFileSelected($event)">
+        <input #fileInput class="visually-hidden" type="file" accept="image/jpeg,image/png,image/webp" multiple (change)="onFileSelected($event)">
         <button mat-stroked-button type="button" class="file-button" (click)="fileInput.click()">
-          <mat-icon>add_photo_alternate</mat-icon>{{ selectedFile()?.name || (editing() ? 'Replace image' : 'Choose an image') }}
+          <mat-icon>add_photo_alternate</mat-icon>{{ editing() ? 'Add images' : 'Choose images' }}
         </button>
-        <span class="file-hint">JPG, PNG or WebP · up to 10 MB@if (editing()) { · optional }</span>
-        <button mat-flat-button type="submit" class="submit-button" [disabled]="uploading() || uploadForm.invalid || (!editing() && !selectedFile())">
+        <span class="file-hint">
+          JPG, PNG or WebP · up to 10 MB each · {{ currentImages().length + selectedImages().length }}/{{ maxImages }} images
+        </span>
+        <button mat-flat-button type="submit" class="submit-button" [disabled]="uploading() || uploadForm.invalid || (!editing() && !selectedImages().length)">
           @if (uploading()) { <mat-spinner diameter="18"></mat-spinner> } @else if (editing()) { Save changes } @else { Add artwork }
           <mat-icon iconPositionEnd>arrow_forward</mat-icon>
         </button>
       </div>
-      @if (imagePreview()) {
-        <div class="image-preview"><img [src]="imagePreview()" alt="Selected artwork preview"><span>New image preview</span></div>
-      } @else if (currentImageUrl()) {
-        <div class="image-preview"><img [src]="currentImageUrl()" alt="Current artwork"><span>Current image</span></div>
+      @if (selectedImages().length) {
+        <div class="image-preview-list" aria-label="Selected image previews">
+          @for (image of selectedImages(); track image.previewUrl) {
+            <div class="image-preview">
+              <img [src]="image.previewUrl" [alt]="'Preview of ' + image.file.name">
+              <span>{{ image.file.name }}</span>
+              <button mat-icon-button type="button" (click)="removeSelectedImage(image.previewUrl)" [attr.aria-label]="'Remove ' + image.file.name">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+          }
+        </div>
+      }
+      @if (editing()) {
+        <div class="current-image-list" aria-label="Current artwork images">
+          <p class="image-list-title">Current images</p>
+          @for (image of currentImages(); track image.id; let first = $first) {
+            <div class="image-preview">
+              <img [src]="imageSource(image.image_url)" [alt]="'Current artwork image ' + (image.position + 1)">
+              <span>{{ first ? 'Cover image' : 'Image ' + (image.position + 1) }}</span>
+              <button
+                mat-icon-button
+                type="button"
+                [disabled]="currentImages().length <= 1 || removingImageId() !== null"
+                (click)="removeCurrentImage(image)"
+                [attr.aria-label]="'Remove image ' + (image.position + 1)"
+                [title]="currentImages().length <= 1 ? 'An artwork must keep at least one image' : 'Remove image'"
+              >
+                @if (removingImageId() === image.id) { <mat-spinner diameter="20"></mat-spinner> } @else { <mat-icon>delete</mat-icon> }
+              </button>
+            </div>
+          }
+        </div>
       }
     </form>
     }

@@ -16,6 +16,18 @@ interface Artwork {
   price: number;
   discount_percent: number;
   image_url: string;
+  images: ArtworkImage[];
+}
+
+interface ArtworkImage {
+  id: number;
+  image_url: string;
+  position: number;
+}
+
+interface SelectedImage {
+  file: File;
+  previewUrl: string;
 }
 
 const API_URL = '/api/artworks';
@@ -33,7 +45,8 @@ const API_ORIGIN = '';
     ReactiveFormsModule,
     RouterLink
   ],
-  templateUrl: './artwork-upload.html'
+  templateUrl: './artwork-upload.html',
+  styleUrl: './artwork-upload.scss'
 })
 export class ArtworkUpload implements OnInit, OnDestroy {
   private readonly http = inject(HttpClient);
@@ -41,14 +54,15 @@ export class ArtworkUpload implements OnInit, OnDestroy {
   private readonly snackBar = inject(MatSnackBar);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
-  private previewUrl: string | null = null;
+  private previewUrls: string[] = [];
 
   readonly uploading = signal(false);
   readonly loadingArtwork = signal(false);
   readonly editing = signal(false);
-  readonly selectedFile = signal<File | null>(null);
-  readonly imagePreview = signal<string | null>(null);
-  readonly currentImageUrl = signal<string | null>(null);
+  readonly selectedImages = signal<SelectedImage[]>([]);
+  readonly currentImages = signal<ArtworkImage[]>([]);
+  readonly removingImageId = signal<number | null>(null);
+  readonly maxImages = 10;
   private artworkId: number | null = null;
 
   readonly uploadForm = this.formBuilder.group({
@@ -81,7 +95,7 @@ export class ArtworkUpload implements OnInit, OnDestroy {
           price: artwork.price,
           discount_percent: artwork.discount_percent
         });
-        this.currentImageUrl.set(`${API_ORIGIN}${artwork.image_url}`);
+        this.currentImages.set(artwork.images);
         this.loadingArtwork.set(false);
       },
       error: () => {
@@ -93,23 +107,67 @@ export class ArtworkUpload implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.revokePreview();
+    this.revokePreviews();
   }
 
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
-    const file = input.files?.[0] ?? null;
-    this.revokePreview();
-    this.selectedFile.set(file);
-    if (file) {
-      this.previewUrl = URL.createObjectURL(file);
-      this.imagePreview.set(this.previewUrl);
+    const files = Array.from(input.files ?? []);
+    input.value = '';
+    const availableSlots = this.maxImages - this.currentImages().length;
+    if (files.length > availableSlots) {
+      this.snackBar.open(
+        availableSlots === 0
+          ? `This artwork already has the maximum of ${this.maxImages} images.`
+          : `You can add ${availableSlots} more ${availableSlots === 1 ? 'image' : 'images'}.`,
+        'Dismiss',
+        { duration: 4000 }
+      );
+      return;
     }
+
+    this.revokePreviews();
+    const previews = files.map((file) => ({
+      file,
+      previewUrl: URL.createObjectURL(file)
+    }));
+    this.previewUrls = previews.map((preview) => preview.previewUrl);
+    this.selectedImages.set(previews);
+  }
+
+  removeSelectedImage(previewUrl: string): void {
+    URL.revokeObjectURL(previewUrl);
+    this.previewUrls = this.previewUrls.filter((url) => url !== previewUrl);
+    this.selectedImages.update((images) => images.filter((image) => image.previewUrl !== previewUrl));
+  }
+
+  removeCurrentImage(image: ArtworkImage): void {
+    if (this.currentImages().length <= 1 || this.removingImageId() !== null || this.artworkId === null) {
+      return;
+    }
+
+    this.removingImageId.set(image.id);
+    this.http.delete<void>(`${API_URL}/${this.artworkId}/images/${image.id}`).subscribe({
+      next: () => {
+        this.currentImages.update((images) => images.filter((current) => current.id !== image.id));
+        this.removingImageId.set(null);
+        this.snackBar.open('Image removed.', 'Dismiss', { duration: 3000 });
+      },
+      error: (response) => {
+        this.removingImageId.set(null);
+        const message = response.error?.detail ?? 'Image could not be removed.';
+        this.snackBar.open(message, 'Dismiss', { duration: 5000 });
+      }
+    });
   }
 
   submitUpload(): void {
-    const file = this.selectedFile();
-    if (this.uploadForm.invalid || (!file && !this.editing()) || this.uploading() || this.loadingArtwork()) {
+    if (
+      this.uploadForm.invalid ||
+      (!this.selectedImages().length && !this.editing()) ||
+      this.uploading() ||
+      this.loadingArtwork()
+    ) {
       this.uploadForm.markAllAsTouched();
       return;
     }
@@ -120,8 +178,8 @@ export class ArtworkUpload implements OnInit, OnDestroy {
     data.append('description', values.description?.trim() ?? '');
     data.append('price', String(values.price));
     data.append('discount_percent', String(values.discount_percent ?? 0));
-    if (file) {
-      data.append('image', file);
+    for (const image of this.selectedImages()) {
+      data.append('images', image.file);
     }
 
     this.uploading.set(true);
@@ -142,12 +200,12 @@ export class ArtworkUpload implements OnInit, OnDestroy {
     });
   }
 
-  private revokePreview(): void {
-    if (this.previewUrl) {
-      URL.revokeObjectURL(this.previewUrl);
-      this.previewUrl = null;
+  private revokePreviews(): void {
+    for (const url of this.previewUrls) {
+      URL.revokeObjectURL(url);
     }
-    this.imagePreview.set(null);
+    this.previewUrls = [];
+    this.selectedImages.set([]);
   }
 
   imageSource(path: string): string {

@@ -21,7 +21,7 @@ Copy-Item .env.example .env
 uvicorn app.main:app --reload
 ```
 
-Set `DATABASE_URL` in `backend/.env` to your MySQL credentials. The API creates its tables on startup. Uploaded images are stored under `backend/uploads/artworks/` and served from `/uploads/`.
+Set `DATABASE_URL` in `backend/.env` to your MySQL credentials. The API creates its tables on startup and adds existing artwork cover images to the image gallery. Each artwork can have up to 10 JPG, PNG, or WebP images, with a 10 MB limit per image. Uploaded images are stored under `backend/uploads/artworks/` and served from `/uploads/`.
 
 Configure the single admin account in `backend/.env`. Generate an Argon2 password hash and signing secret from `backend/`:
 

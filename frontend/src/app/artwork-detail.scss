@@ -29,6 +29,12 @@
   margin: 0 auto;
 }
 
+.detail-gallery {
+  display: grid;
+  min-width: 0;
+  gap: 12px;
+}
+
 .detail-image-wrap {
   position: relative;
   overflow: hidden;
@@ -42,6 +48,40 @@
   width: 100%;
   height: 100%;
   object-fit: contain;
+}
+
+.detail-thumbnails {
+  display: flex;
+  gap: 9px;
+  overflow-x: auto;
+  padding: 2px;
+}
+
+.detail-thumbnail {
+  flex: 0 0 68px;
+  width: 68px;
+  height: 68px;
+  padding: 3px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  cursor: pointer;
+}
+
+.detail-thumbnail.selected {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+
+.detail-thumbnail:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.detail-thumbnail img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .detail-copy .eyebrow {

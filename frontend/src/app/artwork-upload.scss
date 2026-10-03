@@ -1,0 +1,25 @@
+.image-preview span {
+  flex: 1;
+  overflow-wrap: anywhere;
+}
+
+.image-preview-list,
+.current-image-list {
+  display: grid;
+  gap: 4px;
+}
+
+.current-image-list {
+  margin-top: 18px;
+}
+
+.image-list-title {
+  margin: 0;
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.image-preview img {
+  flex: 0 0 54px;
+}
