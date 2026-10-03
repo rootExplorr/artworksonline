@@ -90,8 +90,9 @@ export class ArtworkDetail implements OnInit {
 
     this.http.get<Artwork>(`${API_URL}/${id}`).subscribe({
       next: (artwork) => {
-        this.artwork.set(artwork);
-        this.selectedImageUrl.set(artwork.images[0]?.image_url ?? artwork.image_url);
+        const images = artwork.images ?? [];
+        this.artwork.set({ ...artwork, images });
+        this.selectedImageUrl.set(images[0]?.image_url ?? artwork.image_url);
         this.loading.set(false);
         this.loadReviews(artwork.id);
       },

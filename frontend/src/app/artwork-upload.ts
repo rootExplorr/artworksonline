@@ -95,7 +95,7 @@ export class ArtworkUpload implements OnInit, OnDestroy {
           price: artwork.price,
           discount_percent: artwork.discount_percent
         });
-        this.currentImages.set(artwork.images);
+        this.currentImages.set(artwork.images ?? []);
         this.loadingArtwork.set(false);
       },
       error: () => {
